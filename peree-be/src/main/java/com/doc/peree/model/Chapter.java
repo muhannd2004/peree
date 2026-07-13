@@ -21,14 +21,11 @@ public class Chapter {
     @Column(nullable = false)
     private String title;
 
-    // Markdown content of this chapter
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    // Order within the document
     private int orderIndex;
 
-    // Per-chapter publish control
     private boolean published;
 
     @ManyToOne(fetch = FetchType.LAZY)
