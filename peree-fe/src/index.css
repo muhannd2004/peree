@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* -- Custom design tokens: warm terracotta / cream palette -- */
+@theme {
+  --color-brand-50: #fff8f0;
+  --color-brand-100: #f6ebd9;
+  --color-brand-200: #eccca1;
+  --color-brand-300: #dfac6c;
+  --color-brand-400: #d18d45;
+  --color-brand-500: #c08552;
+  --color-brand-600: #a76d44;
+  --color-brand-700: #8c5a3c;
+  --color-brand-800: #6f4435;
+  --color-brand-900: #4b2e2b;
+
+  --color-surface-primary: #fff8f0;
+  --color-surface-secondary: #ffffff;
+  --color-surface-tertiary: #f4eae1;
+
+  --color-warm-900: #4b2e2b;
+  --color-warm-700: #6f4435;
+  --color-warm-500: #8c5a3c;
+  --color-warm-400: #a76d44;
+  --color-warm-300: #c08552;
+  --color-warm-200: #dfac6c;
+  --color-warm-100: #f6ebd9;
+
+  --color-danger-400: #ef4444;
+  --color-danger-500: #dc2626;
+
+  --color-success-400: #4ade80;
+  --color-success-500: #16a34a;
+}
+
+/* -- Base layer resets -- */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background-color: var(--color-surface-primary);
+    color: var(--color-warm-900);
+    min-height: 100dvh;
+  }
+
+  #root {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+}

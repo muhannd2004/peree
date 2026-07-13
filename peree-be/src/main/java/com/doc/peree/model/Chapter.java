@@ -8,17 +8,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "slug"})
-)
 @Getter
 @Setter
 @NoArgsConstructor
-public class Document {
+public class Chapter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,22 +21,19 @@ public class Document {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
-    private String slug;
+    // Markdown content of this chapter
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DocumentType type;
+    // Order within the document
+    private int orderIndex;
 
+    // Per-chapter publish control
     private boolean published;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("orderIndex ASC")
-    private List<Chapter> chapters = new ArrayList<>();
+    @JoinColumn(name = "document_id", nullable = false)
+    private Document document;
 
     @CreationTimestamp
     @Column(updatable = false)
