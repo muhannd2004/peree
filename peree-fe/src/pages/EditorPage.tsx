@@ -32,6 +32,7 @@ export default function EditorPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingStatus, setSavingStatus] = useState<'Saved' | 'Saving...' | 'Unsaved changes'>('Saved');
+  const [docSaveStatus, setDocSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [showHints, setShowHints] = useState(false);
 
   // Sidebar States
@@ -154,19 +155,29 @@ export default function EditorPage() {
     }
   };
 
-  // Document Setting Updates
-  const handleDocUpdate = async (updates: Partial<DocumentResponse>) => {
+  // Document Setting Updates - optimistic: apply locally first, sync in background
+  const handleDocUpdate = (updates: Partial<DocumentResponse>) => {
     if (!doc) return;
-    try {
-      const updated = await updateDocument(doc.id, {
-        title: updates.title ?? doc.title,
-        type: updates.type ?? doc.type,
-        published: updates.published ?? doc.published,
+    // Apply change immediately so UI feels instant
+    const optimistic = { ...doc, ...updates };
+    setDoc(optimistic);
+    setDocSaveStatus('saving');
+    void updateDocument(doc.id, {
+      title: optimistic.title,
+      type: optimistic.type,
+      published: optimistic.published,
+    })
+      .then((updated) => {
+        setDoc(updated);
+        setDocSaveStatus('saved');
+        setTimeout(() => setDocSaveStatus('idle'), 1500);
+      })
+      .catch((err) => {
+        // Revert on failure
+        setDoc(doc);
+        setDocSaveStatus('idle');
+        console.error(err);
       });
-      setDoc(updated);
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   // Resizers
@@ -247,10 +258,10 @@ export default function EditorPage() {
               const headings = active ? parseMarkdownHeadings(chapterContent) : parseMarkdownHeadings(chap.content);
               return (
                 <div key={chap.id} className="mb-2">
-                  <div className="flex items-center group">
+                  <div className="flex items-center group min-w-0">
                     <button
                       onClick={() => selectChapter(chap)}
-                      className={`flex-1 text-left px-3 py-2 text-sm font-medium rounded-md transition-colors truncate ${
+                      className={`flex-1 min-w-0 text-left px-3 py-2 text-sm font-medium rounded-md transition-colors truncate ${
                         active ? 'bg-white shadow-sm text-brand-700' : 'text-warm-700 hover:bg-warm-200'
                       }`}
                     >
@@ -262,7 +273,7 @@ export default function EditorPage() {
                           e.stopPropagation();
                           setChapterToDelete({ id: chap.id, title: chap.title });
                         }}
-                        className="opacity-0 group-hover:opacity-100 p-2 text-warm-400 hover:text-danger-500 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 shrink-0 p-2 text-warm-400 hover:text-danger-500 transition-opacity"
                         title="Delete chapter"
                       >
                         ×
@@ -412,7 +423,18 @@ export default function EditorPage() {
             className="absolute top-0 left-0 w-2 h-full cursor-col-resize hover:bg-brand-300/30 active:bg-brand-300/50 z-10"
           />
           <div className="p-5 flex-1 overflow-y-auto space-y-6 pl-6">
-            <h3 className="font-bold text-warm-900 tracking-tight text-lg">Document Settings</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-warm-900 tracking-tight text-lg">Document Settings</h3>
+              <span
+                className={`text-xs font-medium transition-opacity duration-300 ${
+                  docSaveStatus === 'saving' ? 'opacity-100 text-warm-400' :
+                  docSaveStatus === 'saved'  ? 'opacity-100 text-green-500' :
+                  'opacity-0'
+                }`}
+              >
+                {docSaveStatus === 'saving' ? 'Saving...' : 'Saved'}
+              </span>
+            </div>
 
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-warm-500">Document Title</label>

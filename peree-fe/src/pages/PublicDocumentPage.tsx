@@ -225,7 +225,7 @@ export default function PublicDocumentPage() {
           </button>
         )}
 
-        <article className="max-w-4xl px-8 py-16 lg:px-16 lg:py-24 relative">
+        <article className="max-w-5xl px-8 py-16 lg:px-12 lg:py-24 pr-16 lg:pr-24">
           {currentChapter ? (
             <section className="markdown-body">
               {/* Header section with title and optional Draft badge */}
